@@ -11,14 +11,14 @@ import UIKit
 /**
  An IsaoTextField is a subclass of the TextFieldEffects object, is a control that displays an UITextField with a customizable visual effect around the lower edge of the control.
  */
-@IBDesignable open class IsaoTextField: TextFieldEffects {
+@IBDesignable public class IsaoTextField: TextFieldEffects {
     
     /**
      The color of the border when it has no content.
      
      This property applies a color to the lower edge of the control. The default value for this property is a clear color. This value is also applied to the placeholder color.
      */
-    @IBInspectable dynamic open var inactiveColor: UIColor? {
+    @IBInspectable dynamic public var inactiveColor: UIColor? {
         didSet {
             updateBorder()
         }
@@ -29,7 +29,7 @@ import UIKit
      
      This property applies a color to the lower edge of the control. The default value for this property is a clear color.
      */
-    @IBInspectable dynamic open var activeColor: UIColor? {
+    @IBInspectable dynamic public var activeColor: UIColor? {
         didSet {
             updateBorder()
         }
@@ -40,19 +40,19 @@ import UIKit
      
      This property determines the size of the placeholder label relative to the font size of the text field.
      */
-    @IBInspectable dynamic open var placeholderFontScale: CGFloat = 0.7 {
+    @IBInspectable dynamic public var placeholderFontScale: CGFloat = 0.7 {
         didSet {
             updatePlaceholder()
         }
     }
     
-    override open var placeholder: String? {
+    override public var placeholder: String? {
         didSet {
             updatePlaceholder()
         }
     }
     
-    override open var bounds: CGRect {
+    override public var bounds: CGRect {
         didSet {
             updateBorder()
             updatePlaceholder()
@@ -66,10 +66,10 @@ import UIKit
     
     // MARK: - TextFieldsEffects
     
-    override open func drawViewsForRect(_ rect: CGRect) {
-        let frame = CGRect(origin: CGPoint.zero, size: CGSize(width: rect.size.width, height: rect.size.height))
+    override public func drawViewsForRect(rect: CGRect) {
+        let frame = CGRect(origin: CGPointZero, size: CGSize(width: rect.size.width, height: rect.size.height))
         
-        placeholderLabel.frame = frame.insetBy(dx: placeholderInsets.x, dy: placeholderInsets.y)
+        placeholderLabel.frame = CGRectInset(frame, placeholderInsets.x, placeholderInsets.y)
         placeholderLabel.font = placeholderFontFromFont(font!)
         
         updateBorder()
@@ -79,14 +79,14 @@ import UIKit
         addSubview(placeholderLabel)        
     }
     
-    override open func animateViewsForTextEntry() {
+    override public func animateViewsForTextEntry() {
         updateBorder()
         if let activeColor = activeColor {
             performPlacerholderAnimationWithColor(activeColor)
         }
     }
     
-    override open func animateViewsForTextDisplay() {
+    override public func animateViewsForTextDisplay() {
         updateBorder()
         if let inactiveColor = inactiveColor {
             performPlacerholderAnimationWithColor(inactiveColor)
@@ -97,7 +97,7 @@ import UIKit
     
     private func updateBorder() {
         borderLayer.frame = rectForBorder(frame)
-        borderLayer.backgroundColor = isFirstResponder ? activeColor?.cgColor : inactiveColor?.cgColor
+        borderLayer.backgroundColor = isFirstResponder() ? activeColor?.CGColor : inactiveColor?.CGColor
     }
     
     private func updatePlaceholder() {
@@ -106,20 +106,20 @@ import UIKit
         placeholderLabel.sizeToFit()
         layoutPlaceholderInTextRect()
         
-        if isFirstResponder {
+        if isFirstResponder() {
             animateViewsForTextEntry()
         }
     }
     
-    private func placeholderFontFromFont(_ font: UIFont) -> UIFont! {
+    private func placeholderFontFromFont(font: UIFont) -> UIFont! {
         let smallerFont = UIFont(name: font.fontName, size: font.pointSize * placeholderFontScale)
         return smallerFont
     }
     
-    private func rectForBorder(_ bounds: CGRect) -> CGRect {
+    private func rectForBorder(bounds: CGRect) -> CGRect {
         var newRect:CGRect
         
-        if isFirstResponder {
+        if isFirstResponder() {
             newRect = CGRect(x: 0, y: bounds.size.height - font!.lineHeight + textFieldInsets.y - borderThickness.active, width: bounds.size.width, height: borderThickness.active)
         } else {
             newRect = CGRect(x: 0, y: bounds.size.height - font!.lineHeight + textFieldInsets.y - borderThickness.inactive, width: bounds.size.width, height: borderThickness.inactive)
@@ -129,12 +129,12 @@ import UIKit
     }
     
     private func layoutPlaceholderInTextRect() {
-        let textRect = self.textRect(forBounds: bounds)
+        let textRect = textRectForBounds(bounds)
         var originX = textRect.origin.x
         switch textAlignment {
-        case .center:
+        case .Center:
             originX += textRect.size.width/2 - placeholderLabel.bounds.width/2
-        case .right:
+        case .Right:
             originX += textRect.size.width - placeholderLabel.bounds.width
         default:
             break
@@ -143,38 +143,38 @@ import UIKit
             width: placeholderLabel.frame.size.width, height: placeholderLabel.frame.size.height)
     }
     
-    private func performPlacerholderAnimationWithColor(_ color: UIColor) {
+    private func performPlacerholderAnimationWithColor(color: UIColor) {
         
         let yOffset: CGFloat = 4
         
-        UIView.animate(withDuration: 0.15, animations: {
-            self.placeholderLabel.transform = CGAffineTransform(translationX: 0, y: -yOffset)
+        UIView.animateWithDuration(0.15, animations: {
+            self.placeholderLabel.transform = CGAffineTransformMakeTranslation(0, -yOffset)
             self.placeholderLabel.alpha = 0
             }) { _ in
-                self.placeholderLabel.transform = CGAffineTransform.identity
-                self.placeholderLabel.transform = CGAffineTransform(translationX: 0, y: yOffset)
+                self.placeholderLabel.transform = CGAffineTransformIdentity
+                self.placeholderLabel.transform = CGAffineTransformMakeTranslation(0, yOffset)
                 
-                UIView.animate(withDuration: 0.15, animations: {
+                UIView.animateWithDuration(0.15, animations: {
                     self.placeholderLabel.textColor = color
-                    self.placeholderLabel.transform = CGAffineTransform.identity
+                    self.placeholderLabel.transform = CGAffineTransformIdentity
                     self.placeholderLabel.alpha = 1
                 }) { _ in
-                    self.animationCompletionHandler?(self.isFirstResponder ? .textEntry : .textDisplay)
+                    self.animationCompletionHandler?(type: self.isFirstResponder() ? .TextEntry : .TextDisplay)
                 }
         }
     }
     
     // MARK: - Overrides
         
-    override open func editingRect(forBounds bounds: CGRect) -> CGRect {
+    override public func editingRectForBounds(bounds: CGRect) -> CGRect {
         let newBounds = CGRect(x: 0, y: 0, width: bounds.size.width, height: bounds.size.height - font!.lineHeight + textFieldInsets.y)
-        return newBounds.insetBy(dx: textFieldInsets.x, dy: 0)
+        return CGRectInset(newBounds, textFieldInsets.x, 0)
     }
     
-    override open func textRect(forBounds bounds: CGRect) -> CGRect {
+    override public func textRectForBounds(bounds: CGRect) -> CGRect {
         let newBounds = CGRect(x: 0, y: 0, width: bounds.size.width, height: bounds.size.height - font!.lineHeight + textFieldInsets.y)
         
-        return newBounds.insetBy(dx: textFieldInsets.x, dy: 0)
+        return CGRectInset(newBounds, textFieldInsets.x, 0)
     }
     
 }
